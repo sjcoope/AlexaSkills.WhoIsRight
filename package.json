@@ -1,0 +1,27 @@
+{
+  "name": "whoisright",
+  "version": "1.0.0",
+  "description": "A simple Alexa skill to determine who is right.",
+  "main": "index.js",
+  "dependencies": {
+    "alexa-app": "^2.3.4"
+  },
+  "devDependencies": {
+    "chai": "^3.5.0",
+    "mocha": "^3.1.2"
+  },
+  "scripts": {
+    "test": "mocha",
+    "start": "build.bat"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/sjcoope/AlexaSkills.WhoIsRight.git"
+  },
+  "author": "Simon Coope",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/sjcoope/AlexaSkills.WhoIsRight/issues"
+  },
+  "homepage": "https://github.com/sjcoope/AlexaSkills.WhoIsRight"
+}
