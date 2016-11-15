@@ -36,8 +36,7 @@ intentHandler.whoIsRight = function(request, response) {
         reprompt = prompts.intents.whoIsRight.notUnderstood.reprompt;
     }
     
-    var shouldEndSession = utility.nullConditional(request.session(shouldEndSessionKey), shouldEndSessionDefault);
-    response.say(prompt).reprompt(reprompt).shouldEndSession(shouldEndSession).send();
+    response.say(prompt).reprompt(reprompt).shouldEndSession(true).send();
 };
 
 intentHandler.help = function(request, response) {
