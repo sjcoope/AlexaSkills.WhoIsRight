@@ -15,11 +15,9 @@ intentHandler.launch = function (request, response) {
 
 intentHandler.whoIsRight = function(request, response) {
     var prompt, reprompt;
-    var firstPersonName = request.slot('FirstPerson');
-    var secondPersonName = request.slot('SecondPerson');
-    console.log('firstPersonName', firstPersonName);
-    console.log('secondPersonName', secondPersonName);
-    
+    var firstPersonName = request.slot('FirstPerson', null);
+    var secondPersonName = request.slot('SecondPerson', null);
+
     if(firstPersonName && secondPersonName){
         // Select who is right at random
         var winner = Math.floor((Math.random() * 10) + 1) <= 5 ? firstPersonName : secondPersonName;
@@ -36,7 +34,7 @@ intentHandler.whoIsRight = function(request, response) {
         reprompt = prompts.intents.whoIsRight.notUnderstood.reprompt;
     }
     
-    response.say(prompt).reprompt(reprompt).shouldEndSession(true).send();
+    response.say(prompt).reprompt(reprompt).shouldEndSession(true);
 };
 
 intentHandler.help = function(request, response) {
