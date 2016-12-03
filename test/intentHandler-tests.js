@@ -9,6 +9,9 @@ var intentHandler = require('../src/intentHandler');
 var prompts = require('../src/prompts');
 var utility = require('../src/utility');
 
+// Used to persist the session between tests involving multiple requests.
+var sessionAttributes;
+
 // Required for building requests in full intent tests.
 var requestData = { 
     "version": "1.0",
@@ -42,6 +45,8 @@ describe('intentHandler', function() {
         var speechResponse = response.response.response;
         var prompt = speechResponse.outputSpeech;
         var reprompt = speechResponse.reprompt.outputSpeech;
+        var shouldEndSession = speechResponse.shouldEndSession;
+        sessionAttributes = response.response.sessionAttributes;
 
         it('should have a prompt', function () {
             should.exist(prompt);
@@ -62,6 +67,118 @@ describe('intentHandler', function() {
             var expected = ssml.fromStr(prompts.launch.reprompt);
             reprompt.ssml.should.equal(expected);
         });
+
+        it('should not end the session', function() {
+            shouldEndSession.should.equal(false);
+        });
+
+        context('and then invoking built-in intents', function() {
+            // Prepare to invoke another intent
+
+            // Copy session variables from the launch response to the new request data
+            // (to simulate persisting the session for a subsequent call).
+            var requestDataCopy = JSON.parse(JSON.stringify(requestData));
+            requestDataCopy.session.attributes = sessionAttributes;
+
+            // Build the request and response
+            var response = new alexa.response();
+            var request = new alexa.request(requestDataCopy);
+            
+            describe('on error', function() {
+                
+                // Execute the intent
+                var exception = {};
+                intentHandler.error(exception, request, response);
+
+                // Get the speech response
+                var speechResponse = response.response.response;
+                var prompt = speechResponse.outputSpeech;
+                var shouldEndSession = speechResponse.shouldEndSession;
+
+                it('should not end the session', function() {
+                    shouldEndSession.should.equal(false);
+                });
+            });
+
+            describe('on stop', function() {
+                // Execute the intent
+                intentHandler.stop(request, response);
+
+                // Get the speech response
+                var speechResponse = response.response.response;
+                var prompt = speechResponse.outputSpeech;
+                var shouldEndSession = speechResponse.shouldEndSession;
+
+                it('should end the session', function() {
+                    shouldEndSession.should.equal(true);
+                });
+            });
+
+            describe('on help', function() {
+                // Execute the intent
+                intentHandler.help(request, response);
+
+                // Get the speech response
+                var speechResponse = response.response.response;
+                var prompt = speechResponse.outputSpeech;
+                var shouldEndSession = speechResponse.shouldEndSession;
+
+                it('should not end the session', function() {
+                    shouldEndSession.should.equal(false);
+                });
+            });
+
+            describe('on cancel', function() {
+                // Execute the intent
+                intentHandler.stop(request, response);
+
+                // Get the speech response
+                var speechResponse = response.response.response;
+                var prompt = speechResponse.outputSpeech;
+                var shouldEndSession = speechResponse.shouldEndSession;
+
+                it('should end the session', function() {
+                    shouldEndSession.should.equal(true);
+                });
+            });
+        });
+
+        context('and then on custom intents', function() {
+            describe('on whoIsRight', function() {
+                // Copy the request data and set slot info
+                var firstPersonName = "Bob";
+                var secondPersonName = "Jim";
+                var requestDataCopy = JSON.parse(JSON.stringify(requestData));
+                requestDataCopy.request.intent = {
+                    "name": "WhoIsRight",
+                    "slots": {
+                        "FirstPerson": {
+                            "value": firstPersonName,
+                            "name": "FirstPerson"
+                        },
+                        "SecondPerson": {
+                            "value": secondPersonName,
+                            "name": "SecondPerson"
+                        }
+                    }
+                };
+
+                // Create the request and response, then trigger the intent
+                var response = new alexa.response();
+                var request = new alexa.request(requestDataCopy);
+                intentHandler.whoIsRight(request, response);
+
+                // Get the speech response
+                var speechResponse = response.response.response;
+                var prompt = speechResponse.outputSpeech;
+                var reprompt = speechResponse.reprompt.outputSpeech;
+                var shouldEndSession = speechResponse.shouldEndSession;
+
+                it('should end the session', function() {
+                    shouldEndSession.should.equal(true);
+                });
+            });
+        }); 
     });
 
     describe('On error', function() {
@@ -77,6 +194,7 @@ describe('intentHandler', function() {
         // Get the speech response
         var speechResponse = response.response.response;
         var prompt = speechResponse.outputSpeech;
+        var shouldEndSession = speechResponse.shouldEndSession;
 
         it('should have a prompt', function () {
             should.exist(prompt);
@@ -86,6 +204,10 @@ describe('intentHandler', function() {
         it('should have correct "error" prompt', function () {
             var expected = ssml.fromStr(prompts.error.prompt);
             prompt.ssml.should.equal(expected);
+        });
+
+        it('should end the session', function() {
+            shouldEndSession.should.equal(true);
         });
     });
 
@@ -98,6 +220,7 @@ describe('intentHandler', function() {
         // Get the speech response
         var speechResponse = response.response.response;
         var prompt = speechResponse.outputSpeech;
+        var shouldEndSession = speechResponse.shouldEndSession;
 
         it('should have a prompt', function () {
             should.exist(prompt);
@@ -107,6 +230,10 @@ describe('intentHandler', function() {
         it('should have correct "stop" prompt', function () {
             var expected = ssml.fromStr(prompts.stop.prompt);
             prompt.ssml.should.equal(expected);
+        });
+
+        it('should end the session', function() {
+            shouldEndSession.should.equal(true);
         });
     });
 
@@ -122,6 +249,7 @@ describe('intentHandler', function() {
         // Get the speech response
         var speechResponse = response.response.response;
         var prompt = speechResponse.outputSpeech;
+        var shouldEndSession = speechResponse.shouldEndSession;
 
         it('should have a prompt', function () {
             should.exist(prompt);
@@ -131,6 +259,10 @@ describe('intentHandler', function() {
         it('should have correct "help" prompt', function () {
             var expected = ssml.fromStr(prompts.help.prompt);
             prompt.ssml.should.equal(expected);
+        });
+
+        it('should end the session', function() {
+            shouldEndSession.should.equal(true);
         });
     });
 
@@ -143,6 +275,7 @@ describe('intentHandler', function() {
         // Get the speech response
         var speechResponse = response.response.response;
         var prompt = speechResponse.outputSpeech;
+        var shouldEndSession = speechResponse.shouldEndSession;
 
         it('should have a prompt', function () {
             should.exist(prompt);
@@ -152,6 +285,10 @@ describe('intentHandler', function() {
         it('should have correct "cancel" prompt', function () {
             var expected = ssml.fromStr(prompts.cancel.prompt);
             prompt.ssml.should.equal(expected);
+        });
+
+        it('should end the session', function() {
+            shouldEndSession.should.equal(true);
         });
     });
 
@@ -178,6 +315,7 @@ describe('intentHandler', function() {
             var speechResponse = response.response.response;
             var prompt = speechResponse.outputSpeech;
             var reprompt = speechResponse.reprompt.outputSpeech;
+            var shouldEndSession = speechResponse.shouldEndSession;
 
             it('should have a prompt', function() {
                 should.exist(prompt);
@@ -197,6 +335,10 @@ describe('intentHandler', function() {
             it('should have "not understood" reprompt', function() {
                 var expected = ssml.fromStr(prompts.intents.whoIsRight.notUnderstood.reprompt);
                 reprompt.ssml.should.equal(expected);
+            });
+
+            it('should end the session', function() {
+                shouldEndSession.should.equal(true);
             });
         });
 
@@ -222,6 +364,7 @@ describe('intentHandler', function() {
             var speechResponse = response.response.response;
             var prompt = speechResponse.outputSpeech;
             var reprompt = speechResponse.reprompt.outputSpeech;
+            var shouldEndSession = speechResponse.shouldEndSession;
 
             it('should have a prompt', function() {
                 should.exist(prompt);
@@ -241,6 +384,10 @@ describe('intentHandler', function() {
             it('should have "not understood" reprompt', function() {
                 var expected = ssml.fromStr(prompts.intents.whoIsRight.notUnderstood.reprompt);
                 reprompt.ssml.should.equal(expected);
+            });
+
+            it('should end the session', function() {
+                shouldEndSession.should.equal(true);
             });
         });
 
@@ -272,6 +419,7 @@ describe('intentHandler', function() {
             var speechResponse = response.response.response;
             var prompt = speechResponse.outputSpeech;
             var reprompt = speechResponse.reprompt.outputSpeech;
+            var shouldEndSession = speechResponse.shouldEndSession;
             
             it('should have a prompt', function() {
                 should.exist(prompt);
@@ -299,6 +447,10 @@ describe('intentHandler', function() {
             it('should have "success" reprompt', function() {
                 var expected = ssml.fromStr(prompts.intents.whoIsRight.success.reprompt);
                 reprompt.ssml.should.equal(expected);
+            });
+
+            it('should end the session', function() {
+                shouldEndSession.should.equal(true);
             });
         });
     });

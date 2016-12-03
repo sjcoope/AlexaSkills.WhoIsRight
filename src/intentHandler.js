@@ -6,11 +6,9 @@ var shouldEndSessionKey = "ShouldEndSessionKey";
 var shouldEndSessionDefault = true;
 
 intentHandler.launch = function (request, response) {
-    // We've launched the skill, so session should not end until cancel/stop called
-    var shouldEndSession = false;
-    response.session(shouldEndSessionKey, shouldEndSession);
-
-    response.say(prompts.launch.prompt).reprompt(prompts.launch.reprompt).shouldEndSession(shouldEndSession);
+    // We've launched the skill, so session should not end until cancel/stop/whoIsRight intent is called
+    response.session(shouldEndSessionKey, false);
+    response.say(prompts.launch.prompt).reprompt(prompts.launch.reprompt).shouldEndSession(false);
 };
 
 intentHandler.whoIsRight = function(request, response) {
