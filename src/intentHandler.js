@@ -7,7 +7,7 @@ var shouldEndSessionDefault = true;
 
 intentHandler.launch = function (request, response) {
     // We've launched the skill, so session should not end until cancel/stop/whoIsRight intent is called
-    response.session(shouldEndSessionKey, false);
+    request.getSession().set(shouldEndSessionKey, false);
     response.say(prompts.launch.prompt).reprompt(prompts.launch.reprompt).shouldEndSession(false);
 };
 
@@ -36,12 +36,12 @@ intentHandler.whoIsRight = function(request, response) {
 };
 
 intentHandler.help = function(request, response) {
-    var shouldEndSession = utility.nullConditional(request.session(shouldEndSessionKey), shouldEndSessionDefault);
+    var shouldEndSession = utility.nullConditional(request.getSession().get(shouldEndSessionKey), shouldEndSessionDefault);
     response.say(prompts.help.prompt).shouldEndSession(shouldEndSession);
 };
 
 intentHandler.error = function(exception, request, response) {
-    var shouldEndSession = utility.nullConditional(request.session(shouldEndSessionKey), shouldEndSessionDefault);
+    var shouldEndSession = utility.nullConditional(request.getSession().get(shouldEndSessionKey), shouldEndSessionDefault);
     response.say(prompts.error.prompt).shouldEndSession(shouldEndSession);
 };
 

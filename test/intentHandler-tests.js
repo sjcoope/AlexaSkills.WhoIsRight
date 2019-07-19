@@ -34,11 +34,16 @@ var requestData = {
     }
 };
 
+function getRequestData() {
+    // Create a new copy of request data and return it.
+    return JSON.parse(JSON.stringify(requestData));
+}
+
 describe('intentHandler', function() {
     describe('on launch', function() {
         // Trigger the launch function
         var response = new alexa.response();
-        var request = {};
+        var request = new alexa.request(getRequestData());
         intentHandler.launch(request, response);
 
         // Get the speech response
@@ -46,7 +51,7 @@ describe('intentHandler', function() {
         var prompt = speechResponse.outputSpeech;
         var reprompt = speechResponse.reprompt.outputSpeech;
         var shouldEndSession = speechResponse.shouldEndSession;
-        sessionAttributes = response.response.sessionAttributes;
+        sessionAttributes = request.sessionAttributes;
 
         it('should have a prompt', function () {
             should.exist(prompt);
@@ -77,13 +82,13 @@ describe('intentHandler', function() {
 
             // Copy session variables from the launch response to the new request data
             // (to simulate persisting the session for a subsequent call).
-            var requestDataCopy = JSON.parse(JSON.stringify(requestData));
+            var requestDataCopy = getRequestData();
             requestDataCopy.session.attributes = sessionAttributes;
 
             // Build the request and response
             var response = new alexa.response();
             var request = new alexa.request(requestDataCopy);
-            
+
             describe('on error', function() {
                 
                 // Execute the intent
@@ -148,7 +153,7 @@ describe('intentHandler', function() {
                 // Copy the request data and set slot info
                 var firstPersonName = "Bob";
                 var secondPersonName = "Jim";
-                var requestDataCopy = JSON.parse(JSON.stringify(requestData));
+                var requestDataCopy = getRequestData();
                 requestDataCopy.request.intent = {
                     "name": "WhoIsRight",
                     "slots": {
@@ -183,11 +188,12 @@ describe('intentHandler', function() {
 
     describe('On error', function() {
         // Copy the request data to prevent changes affecting other tests
-        var requestDataCopy = JSON.parse(JSON.stringify(requestData));
+        var requestDataCopy = getRequestData();
 
         // Trigger the error function
         var response = new alexa.response();
         var request = new alexa.request(requestDataCopy);
+
         var exception = {};
         intentHandler.error(exception, request, response);
 
@@ -239,7 +245,7 @@ describe('intentHandler', function() {
 
     describe('On help', function() {
         // Copy the request data to prevent changes affecting other tests
-        var requestDataCopy = JSON.parse(JSON.stringify(requestData));
+        var requestDataCopy = getRequestData();
 
         // Trigger the help function
         var response = new alexa.response();
@@ -295,7 +301,7 @@ describe('intentHandler', function() {
     describe('On whoIsRight', function() {
         context('when firstPerson slot is empty', function() {
             // Copy the request data and set slot info
-            var requestDataCopy = JSON.parse(JSON.stringify(requestData));
+            var requestDataCopy = getRequestData();
             requestDataCopy.request.intent = {
                 "name": "WhoIsRight",
                 "slots": {
@@ -344,7 +350,7 @@ describe('intentHandler', function() {
 
         context('when secondPerson slot is empty', function() {
             // Copy the request data and set slot info
-            var requestDataCopy = JSON.parse(JSON.stringify(requestData));
+            var requestDataCopy = getRequestData();
             requestDataCopy.request.intent = {
                 "name": "WhoIsRight",
                 "slots": {
@@ -395,7 +401,7 @@ describe('intentHandler', function() {
             // Copy the request data and set slot info
             var firstPersonName = "Bob";
             var secondPersonName = "Jim";
-            var requestDataCopy = JSON.parse(JSON.stringify(requestData));
+            var requestDataCopy = getRequestData();
             requestDataCopy.request.intent = {
                 "name": "WhoIsRight",
                 "slots": {
