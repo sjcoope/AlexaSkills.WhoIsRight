@@ -16,7 +16,7 @@
     "test": "./node_modules/mocha/bin/mocha",
     "start": "build.sh",
     "simon": "echo $CODACY_PROJECT_TOKEN",
-    "test-cover": "istanbul cover _mocha --report lcovonly -- -R spec && cat ./coverage/lcov.info | codacy-coverage --token '40c682f51cb241ae96bcf2a38a4c4e59' && rm -rf ./coverage"
+    "test-cover": "istanbul cover _mocha --report lcovonly -- -R spec && cat ./coverage/lcov.info | codacy-coverage --token '40c682f51cb241ae96bcf2a38a4c4e59'"
   },
   "repository": {
     "type": "git",
