@@ -4,7 +4,9 @@
   "description": "A simple Alexa skill to determine who is right.",
   "main": "index.js",
   "dependencies": {
-    "alexa-app": "^4.2.3"
+    "alexa-app": "^4.2.3",
+    "codacy-coverage": "^3.4.0",
+    "mocha-lcov-reporter": "^1.3.0"
   },
   "devDependencies": {
     "chai": "^4.2.0",
@@ -12,7 +14,9 @@
   },
   "scripts": {
     "test": "./node_modules/mocha/bin/mocha",
-    "start": "build.bat"
+    "start": "build.sh",
+    "simon": "echo $CODACY_PROJECT_TOKEN",
+    "test-cover": "istanbul cover _mocha --report lcovonly -- -R spec && cat ./coverage/lcov.info | codacy-coverage --token '40c682f51cb241ae96bcf2a38a4c4e59' && rm -rf ./coverage"
   },
   "repository": {
     "type": "git",

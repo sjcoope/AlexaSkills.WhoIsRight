@@ -1,9 +1,0 @@
-steps:
-  - label: 'AlexaSkills Who Is Right'
-    command:
-      - 'npm install'
-      - 'npm test'
-    plugins:
-      - docker#v3.3.0:
-          image: 'node:10'
-          always-pull: false
